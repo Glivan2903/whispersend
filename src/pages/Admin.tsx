@@ -59,7 +59,7 @@ interface UserStats {
 }
 
 export default function Admin() {
-    const { user, isAdmin } = useAuthStore();
+    const { isAdmin } = useAuthStore();
     const [users, setUsers] = useState<UserStats[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
