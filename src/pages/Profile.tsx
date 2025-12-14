@@ -4,13 +4,12 @@ import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { User, Mail, Shield, Check, LogOut, ArrowLeft, CreditCard, Loader2 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { User, Mail, Shield, Check, CreditCard, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
 export default function Profile() {
-    const { user, signOut } = useAuthStore();
-    const navigate = useNavigate();
+    const { user } = useAuthStore();
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [purchases, setPurchases] = useState<any[]>([]);

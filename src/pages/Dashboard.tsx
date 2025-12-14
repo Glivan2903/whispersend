@@ -3,7 +3,7 @@ import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { MessageSquare, Plus, Loader2, Send, CreditCard, BarChart2, CheckCircle2, XCircle, ArrowUpRight } from 'lucide-react';
+import { MessageSquare, Plus, Loader2, Send, BarChart2, CheckCircle2, XCircle, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 

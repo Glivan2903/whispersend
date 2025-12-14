@@ -4,12 +4,10 @@ import { useAuthStore } from '@/store/authStore';
 import {
     MessageSquare,
     LayoutDashboard,
-    Package,
     History,
     User,
     LogOut,
     Menu,
-    X,
     ChevronRight,
     Send
 } from 'lucide-react';

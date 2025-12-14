@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Loader2, QrCode, CreditCard, ArrowLeft, Lock } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 // Removed unused Dialog import
 import { cn } from '@/lib/utils';
 
@@ -58,7 +58,7 @@ export default function Packages() {
 
         try {
             // 1. Create purchase record
-            const { data: purchaseData, error: purchaseError } = await supabase
+            const { error: purchaseError } = await supabase
                 .from('purchases')
                 .insert({
                     user_id: user.id,

@@ -4,8 +4,8 @@ import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Send, Phone, User as UserIcon, Loader2, AlertCircle, History, MessageSquare, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Send, Phone, User as UserIcon, Loader2, AlertCircle, MessageSquare, ShieldCheck, CheckCircle2, XCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -48,7 +48,6 @@ export default function SendMessage() {
     });
 
     const messageText = watch('message', '');
-    const phoneValue = watch('phone', '');
 
     // ---- EFFECTS ----
     useEffect(() => {
@@ -90,98 +89,6 @@ export default function SendMessage() {
             formatted = `(${value.slice(0, 2)}) ${value.slice(2, 7)}-${value.slice(7)}`;
         }
         setValue('phone', formatted);
-    };
-
-    const onSend = async (data: MessageForm) => {
-        if (!credits || credits.credits_available <= 0) return;
-
-        setSendState('sending');
-        setErrorMessage('');
-
-        try {
-            // 1. Prepare/Reserve: Insert Pending + Reduce Credit via RPC
-            const { data: rpcData, error: rpcError } = await supabase.rpc('send_new_message', {
-                p_recipient_phone: data.phone,
-                p_message_text: data.message,
-                p_sender_alias: data.alias || "Um admirador secreto"
-            });
-
-            if (rpcError) throw rpcError;
-
-            if (rpcData && !rpcData.success) {
-                throw new Error(rpcData.error || 'Erro ao preparar envio');
-            }
-
-            const messageId = rpcData.message_id;
-
-            // Update local state with new credit balance from server (optimistic)
-            if (rpcData && rpcData.new_credits !== undefined) {
-                setCredits(prev => prev ? ({
-                    ...prev,
-                    credits_available: rpcData.new_credits,
-                    credits_used: (prev.credits_used || 0) + 1
-                }) : null);
-            }
-
-            // 2. Send to Webhook
-            const webhookResponse = await fetch('https://n8nconectajuse.conectajuse.shop/webhook/whispersend', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    telefone: data.phone.replace(/\D/g, ''),
-                    mensagem: data.message,
-                    user_id: user?.id,
-                    sender_alias: data.alias || "Um admirador secreto",
-                    id_mensagem: messageId
-                })
-            });
-
-            if (!webhookResponse.ok) {
-                throw new Error('Falha na comunicação com servidor de envio');
-            }
-
-            const webhookResult = await webhookResponse.json();
-            const responseCode = webhookResult.response;
-
-            // 3. Handle Webhook Responses
-            if (responseCode === "true") {
-                // Success
-                await supabase.from('messages').update({ status: 'sent', sent_at: new Date().toISOString() }).eq('id', messageId);
-                setSendState('success');
-                reset();
-                setTimeout(() => setSendState('idle'), 3000); // Close modal automatically after success
-            }
-            else if (responseCode === "usuario não encontrado") {
-                // Critical Error - Logout
-                setSendState('user_not_found');
-                setTimeout(async () => {
-                    await signOut();
-                    navigate('/login');
-                }, 2000);
-            }
-            else {
-                // Assume "false" or any other unhandled error
-                // Error - Refund Credit
-                throw new Error('Falha no envio pelo provedor');
-            }
-
-        } catch (err: any) {
-            console.error('Fluxo de envio falhou:', err);
-            setErrorMessage(err.message || 'Erro desconhecido');
-            setSendState('error');
-
-            // Attempt Refund if messageId exists (we'd need variable scope, but here usage is tricky inside catch)
-            // Ideally we pass messageId to a cleanup function.
-            // Since we don't have messageId easily in catch block unless we lift it, we might need to rely on RPC return
-            // For now, let's assume if we got rpcData we have an ID to refund. 
-            // NOTE: Logic simplification for safety: if we failed AFTER RPC but BEFORE success, we should try to refund.
-            // But we need the ID.
-
-            // To fix scope, let's use the ID from query if we can, or just tell user to contact support if automated refund fails.
-            // Improving implementation:
-        }
     };
 
     const handleSendFlow = async (data: MessageForm) => {
