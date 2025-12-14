@@ -178,13 +178,13 @@ export default function Landing() {
                                 <CardTitle>Pacote 5</CardTitle>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm text-gray-500 line-through">R$ 12,50</span>
-                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">5% OFF</span>
+                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">20% OFF</span>
                                 </div>
                                 <CardDescription>Ideal para conversar</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="text-4xl font-bold text-green-600">R$ 11,90</div>
-                                <div className="text-sm text-gray-500">R$ 2,38 por mensagem</div>
+                                <div className="text-4xl font-bold text-green-600">R$ 10,00</div>
+                                <div className="text-sm text-gray-500">R$ 2,00 por mensagem</div>
                                 <ul className="space-y-2 text-sm text-gray-600">
                                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> 5 Mensagens</li>
                                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Até 500 caracteres</li>
@@ -204,13 +204,13 @@ export default function Landing() {
                                 <CardTitle>Pacote 10</CardTitle>
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm text-gray-500 line-through">R$ 25,00</span>
-                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">8% OFF</span>
+                                    <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">20% OFF</span>
                                 </div>
                                 <CardDescription>Melhor custo-benefício</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="text-4xl font-bold">R$ 22,90</div>
-                                <div className="text-sm text-gray-500">R$ 2,29 por mensagem</div>
+                                <div className="text-4xl font-bold">R$ 20,00</div>
+                                <div className="text-sm text-gray-500">R$ 2,00 por mensagem</div>
                                 <ul className="space-y-2 text-sm text-gray-600">
                                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> 10 Mensagens</li>
                                     <li className="flex items-center gap-2"><Check className="h-4 w-4 text-green-500" /> Até 500 caracteres</li>
