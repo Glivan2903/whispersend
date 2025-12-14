@@ -267,13 +267,13 @@ export default function Landing() {
                         {/* Pacote 1 */}
                         <Card className="hover:shadow-xl transition-all duration-300 border-gray-200 hover:-translate-y-1">
                             <CardHeader className="text-center">
-                                <CardTitle className="text-xl">Mensagem Única</CardTitle>
-                                <CardDescription>Para testar o serviço</CardDescription>
+                                <CardTitle className="text-xl">Plano Sussurro</CardTitle>
+                                <CardDescription>Para quem quer começar</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6 text-center">
-                                <div className="text-5xl font-extrabold text-gray-900">R$ 2,50</div>
+                                <div className="text-5xl font-extrabold text-gray-900">R$ 10,00</div>
                                 <ul className="space-y-3 text-sm text-gray-600 text-left px-4">
-                                    <li className="flex items-center gap-3"><div className="bg-green-100 p-1 rounded-full"><Check className="h-3 w-3 text-green-600" /></div> 1 Mensagem</li>
+                                    <li className="flex items-center gap-3"><div className="bg-green-100 p-1 rounded-full"><Check className="h-3 w-3 text-green-600" /></div> 5 Mensagens</li>
                                     <li className="flex items-center gap-3"><div className="bg-green-100 p-1 rounded-full"><Check className="h-3 w-3 text-green-600" /></div> Entrega Instantânea</li>
                                     <li className="flex items-center gap-3"><div className="bg-green-100 p-1 rounded-full"><Check className="h-3 w-3 text-green-600" /></div> Sigilo Absoluto</li>
                                 </ul>
@@ -291,19 +291,16 @@ export default function Landing() {
                                 Mais Popular
                             </div>
                             <CardHeader className="text-center pb-2">
-                                <CardTitle className="text-2xl text-[#075E54]">Super Combo</CardTitle>
-                                <div className="flex items-center justify-center gap-2 mt-1">
-                                    <span className="text-sm text-gray-400 line-through">R$ 12,50</span>
-                                    <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-bold">20% OFF</span>
-                                </div>
+                                <CardTitle className="text-2xl text-[#075E54]">🔸 Plano Voz Oculta</CardTitle>
+                                <CardDescription>O equilíbrio perfeito</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6 text-center">
-                                <div className="text-6xl font-black text-gray-900 tracking-tight">R$ 10,00</div>
-                                <p className="text-sm text-gray-500 font-medium">Equivale a R$ 2,00 por msg</p>
+                                <div className="text-6xl font-black text-gray-900 tracking-tight">R$ 45,00</div>
+
 
                                 <div className="bg-green-50 rounded-xl p-4 border border-green-100">
                                     <ul className="space-y-3 text-sm text-gray-700 text-left">
-                                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-[#075E54]" /> <strong>5 Mensagens</strong></li>
+                                        <li className="flex items-center gap-3"><Check className="h-5 w-5 text-[#075E54]" /> <strong>30 Mensagens</strong></li>
                                         <li className="flex items-center gap-3"><Check className="h-5 w-5 text-[#075E54]" /> Prioridade de Envio</li>
                                         <li className="flex items-center gap-3"><Check className="h-5 w-5 text-[#075E54]" /> Suporte VIP</li>
                                     </ul>
@@ -321,13 +318,13 @@ export default function Landing() {
                         {/* Pacote 3 */}
                         <Card className="hover:shadow-xl transition-all duration-300 border-gray-200 hover:-translate-y-1">
                             <CardHeader className="text-center">
-                                <CardTitle className="text-xl">Pacote Master</CardTitle>
+                                <CardTitle className="text-xl">🔥 Plano Anônimo Pro</CardTitle>
                                 <CardDescription>Para Heavy Users</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6 text-center">
-                                <div className="text-5xl font-extrabold text-gray-900">R$ 20,00</div>
+                                <div className="text-5xl font-extrabold text-gray-900">R$ 80,00</div>
                                 <ul className="space-y-3 text-sm text-gray-600 text-left px-4">
-                                    <li className="flex items-center gap-3"><div className="bg-green-100 p-1 rounded-full"><Check className="h-3 w-3 text-green-600" /></div> 10 Mensagens</li>
+                                    <li className="flex items-center gap-3"><div className="bg-green-100 p-1 rounded-full"><Check className="h-3 w-3 text-green-600" /></div> 100 Mensagens</li>
                                     <li className="flex items-center gap-3"><div className="bg-green-100 p-1 rounded-full"><Check className="h-3 w-3 text-green-600" /></div> Nunca Expira</li>
                                     <li className="flex items-center gap-3"><div className="bg-green-100 p-1 rounded-full"><Check className="h-3 w-3 text-green-600" /></div> Painel Completo</li>
                                 </ul>
