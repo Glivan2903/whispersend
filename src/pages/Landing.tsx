@@ -278,9 +278,8 @@ export default function Landing() {
                         <div>
                             <h4 className="text-white font-bold mb-4">Contato</h4>
                             <ul className="space-y-2 text-sm">
-                                <li>suporte@whispersend.com</li>
+                                <li>conectajuse@gmail.com</li>
                                 <li>Instagram</li>
-                                <li>Twitter</li>
                             </ul>
                         </div>
                     </div>
