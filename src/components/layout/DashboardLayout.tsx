@@ -9,13 +9,14 @@ import {
     LogOut,
     Menu,
     ChevronRight,
-    Send
+    Send,
+    Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export default function DashboardLayout() {
-    const { user, signOut } = useAuthStore();
+    const { user, isAdmin, signOut } = useAuthStore();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -25,6 +26,10 @@ export default function DashboardLayout() {
         { name: 'Histórico', href: '/history', icon: History },
         { name: 'Perfil', href: '/profile', icon: User },
     ];
+
+    if (isAdmin) {
+        navigation.push({ name: 'Administração', href: '/admin', icon: Shield });
+    }
 
     return (
         <div className="min-h-screen bg-gray-50/50 flex overflow-hidden font-sans">
@@ -110,7 +115,10 @@ export default function DashboardLayout() {
                 <div className="p-4 border-t border-gray-50 bg-gray-50/30">
                     <Button
                         variant="ghost"
-                        onClick={() => signOut()}
+                        onClick={async () => {
+                            await signOut();
+                            window.location.href = '/login'; // Force reload/redirect
+                        }}
                         className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 gap-3 h-11"
                     >
                         <LogOut className="h-5 w-5" />

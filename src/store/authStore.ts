@@ -4,6 +4,7 @@ import { type Session, type User } from '@supabase/supabase-js';
 
 interface AuthState {
     user: User | null;
+    isAdmin: boolean;
     session: Session | null;
     loading: boolean;
     initialize: () => Promise<void>;
@@ -14,15 +15,26 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
     user: null,
+    isAdmin: false,
     session: null,
     loading: true,
     initialize: async () => {
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            set({ session, user: session?.user || null, loading: false });
+            let isAdmin = false;
+            if (session?.user) {
+                const { data } = await supabase.from('users').select('is_admin').eq('id', session.user.id).single();
+                isAdmin = data?.is_admin || false;
+            }
+            set({ session, user: session?.user || null, isAdmin, loading: false });
 
-            supabase.auth.onAuthStateChange((_event, session) => {
-                set({ session, user: session?.user || null, loading: false });
+            supabase.auth.onAuthStateChange(async (_event, session) => {
+                let isAdmin = false;
+                if (session?.user) {
+                    const { data } = await supabase.from('users').select('is_admin').eq('id', session.user.id).single();
+                    isAdmin = data?.is_admin || false;
+                }
+                set({ session, user: session?.user || null, isAdmin, loading: false });
             });
         } catch (error) {
             console.error('Error initializing auth:', error);
