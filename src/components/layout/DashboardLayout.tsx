@@ -16,9 +16,51 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export default function DashboardLayout() {
-    const { user, isAdmin, signOut } = useAuthStore();
+    const { user, isAdmin, isBlocked, signOut } = useAuthStore();
     const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Blocked User Modal - Force overlay
+    if (isBlocked) {
+        return (
+            <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 text-center space-y-6">
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <Shield className="h-8 w-8 text-red-600" />
+                    </div>
+
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-bold text-gray-900">Conta Suspensa</h2>
+                        <p className="text-gray-500">
+                            Sua conta foi temporariamente bloqueada. Para restabelecer o acesso, por favor entre em contato com a administração.
+                        </p>
+                    </div>
+
+                    <div className="space-y-3">
+                        <a
+                            href="https://wa.me/5579998130038"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center w-full gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white py-3 rounded-lg font-bold transition-all transform hover:scale-[1.02]"
+                        >
+                            <MessageSquare className="h-5 w-5" />
+                            Falar com Suporte
+                        </a>
+
+                        <button
+                            onClick={async () => {
+                                await signOut();
+                                window.location.href = '/login';
+                            }}
+                            className="w-full text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors"
+                        >
+                            Sair da conta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const navigation = [
         { name: 'Indicadores', href: '/dashboard', icon: LayoutDashboard },
