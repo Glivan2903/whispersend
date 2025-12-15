@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { TermsModal } from '@/components/auth/TermsModal';
 
 export default function DashboardLayout() {
     const { user, session, isAdmin, isBlocked, signOut } = useAuthStore();
@@ -86,6 +87,8 @@ export default function DashboardLayout() {
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#128C7E]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#25D366]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
             </div>
+
+            <TermsModal />
 
             {/* Mobile Sidebar Overlay */}
             {sidebarOpen && (
@@ -174,7 +177,6 @@ export default function DashboardLayout() {
                     </Button>
                 </div>
             </aside>
-
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-300">
