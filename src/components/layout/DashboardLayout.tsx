@@ -108,8 +108,8 @@ export default function DashboardLayout() {
                 {/* Logo Area */}
                 <div className="h-20 flex items-center px-8 border-b border-gray-50 bg-white/50 backdrop-blur-xl">
                     <div className="flex items-center gap-3">
-                        <div className="bg-gradient-to-br from-[#128C7E] to-[#25D366] p-2.5 rounded-xl shadow-lg shadow-green-500/20">
-                            <MessageSquare className="h-6 w-6 text-white" />
+                        <div className="bg-gradient-to-br from-[#128C7E] to-[#25D366] p-0.5 rounded-xl shadow-lg shadow-green-500/20">
+                            <img src="/logo.png" alt="WhisperSend Logo" className="h-10 w-10 object-contain rounded-lg bg-white" />
                         </div>
                         <span className="text-xl font-bold tracking-tight text-gray-900">WhisperSend</span>
                     </div>

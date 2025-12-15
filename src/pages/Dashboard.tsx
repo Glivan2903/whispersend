@@ -18,18 +18,50 @@ export default function Dashboard() {
     const [stats, setStats] = useState<{ date: string; count: number }[]>([]);
     const [recentMessages, setRecentMessages] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isPageVisible, setIsPageVisible] = useState(true);
 
     // ---- EFFECTS ----
     useEffect(() => {
         if (user) {
             fetchDashboardData(user.id);
         }
+
+        let visibilityTimeout: ReturnType<typeof setTimeout>;
+
+        // Auto-refresh when tab becomes visible again and manage chart visibility
+        const handleVisibilityChange = () => {
+            const visible = document.visibilityState === 'visible';
+
+            if (visible) {
+                // Delay showing the chart to ensure layout is ready (fixes width=-1 error)
+                if (visibilityTimeout) clearTimeout(visibilityTimeout);
+                visibilityTimeout = setTimeout(() => {
+                    setIsPageVisible(true);
+                    if (user) {
+                        console.log("Dashboard visible (stable), refreshing data...");
+                        fetchDashboardData(user.id, true);
+                    }
+                }, 800); // 800ms delay to let browser repaint
+            } else {
+                // Hide immediately
+                if (visibilityTimeout) clearTimeout(visibilityTimeout);
+                setIsPageVisible(false);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (visibilityTimeout) clearTimeout(visibilityTimeout);
+        };
     }, [user]);
 
     // ---- FUNCTIONS ----
-    const fetchDashboardData = async (userId: string) => {
+    const fetchDashboardData = async (userId: string, isBackgroundRefresh = false) => {
         try {
-            setLoading(true);
+            if (!isBackgroundRefresh) {
+                setLoading(true);
+            }
 
             // 1. Fetch Credits
             const { data: creditData } = await supabase
@@ -50,8 +82,7 @@ export default function Dashboard() {
 
             if (messages) setRecentMessages(messages);
 
-            // 3. Fetch Stats (Last 7 days) - utilizing a simple query and processing in JS for MVP
-            // Ideally use an RPC for heavy aggregation
+            // 3. Fetch Stats (Last 7 days)
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
@@ -62,9 +93,7 @@ export default function Dashboard() {
                 .gte('created_at', sevenDaysAgo.toISOString());
 
             if (allRecent) {
-                // Process for Chart
                 const chartMap = new Map<string, number>();
-                // Initialize last 7 days with 0
                 for (let i = 6; i >= 0; i--) {
                     const d = new Date();
                     d.setDate(d.getDate() - i);
@@ -85,7 +114,9 @@ export default function Dashboard() {
         } catch (err) {
             console.error(err);
         } finally {
-            setLoading(false);
+            if (!isBackgroundRefresh) {
+                setLoading(false);
+            }
         }
     };
 
@@ -174,35 +205,49 @@ export default function Dashboard() {
                         <CardDescription>Volume de mensagens enviadas por dia.</CardDescription>
                     </CardHeader>
                     <CardContent className="pl-0">
-                        <div className="h-[300px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={stats}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                    <XAxis
-                                        dataKey="date"
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fill: '#6b7280', fontSize: 12 }}
-                                        dy={10}
-                                    />
-                                    <YAxis
-                                        axisLine={false}
-                                        tickLine={false}
-                                        tick={{ fill: '#6b7280', fontSize: 12 }}
-                                        allowDecimals={false}
-                                    />
-                                    <Tooltip
-                                        cursor={{ fill: '#f3f4f6' }}
-                                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                    />
-                                    <Bar
-                                        dataKey="count"
-                                        fill="#075E54"
-                                        radius={[4, 4, 0, 0]}
-                                        barSize={40}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
+                        <div className="h-[300px] w-full min-h-[300px]" style={{ width: '100%', minWidth: 0 }}>
+                            {/* Only render chart if visible to prevent background tab crash (width=-1) */}
+                            {stats.length > 0 && isPageVisible ? (
+                                <ResponsiveContainer width="100%" height="100%" debounce={300}>
+                                    <BarChart data={stats}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                        <XAxis
+                                            dataKey="date"
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: '#6b7280', fontSize: 12 }}
+                                            dy={10}
+                                        />
+                                        <YAxis
+                                            axisLine={false}
+                                            tickLine={false}
+                                            tick={{ fill: '#6b7280', fontSize: 12 }}
+                                            allowDecimals={false}
+                                        />
+                                        <Tooltip
+                                            cursor={{ fill: '#f3f4f6' }}
+                                            contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                                        />
+                                        <Bar
+                                            dataKey="count"
+                                            fill="#075E54"
+                                            radius={[4, 4, 0, 0]}
+                                            barSize={40}
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="h-full w-full flex flex-col items-center justify-center text-gray-400">
+                                    {stats.length === 0 ? (
+                                        <>
+                                            <BarChart2 className="h-10 w-10 mb-2 opacity-20" />
+                                            <p className="text-sm">Sem dados recentes para exibir</p>
+                                        </>
+                                    ) : (
+                                        <Loader2 className="h-8 w-8 animate-spin text-[#075E54]" />
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>

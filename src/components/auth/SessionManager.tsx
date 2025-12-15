@@ -1,78 +1,103 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { supabase } from '@/lib/supabase';
 
-const TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const TIMEOUT_MS = 60 * 60 * 1000; // 60 minutes
+const CHECK_INTERVAL_MS = 60 * 1000; // Check every 1 minute
+const STORAGE_KEY = 'whispersend_last_activity';
 
 export function SessionManager() {
     const { session, signOut } = useAuthStore();
-    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // 1. Inactivity Logout Logic
+    // 1. Inactivity Logic (Timestamp based)
     useEffect(() => {
         if (!session) return;
 
-        const resetTimer = () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-            timerRef.current = setTimeout(() => {
-                console.log("Session timed out due to inactivity");
-                signOut();
-                window.location.href = '/login'; // Force redirect
-            }, TIMEOUT_MS);
-        };
+        // Initialize timestamp if missing
+        if (!localStorage.getItem(STORAGE_KEY)) {
+            localStorage.setItem(STORAGE_KEY, Date.now().toString());
+        }
 
-        // Initial start
-        resetTimer();
-
-        // Events to listen for
-        const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
-
-        // Throttled handler to avoid performance hit
-        let lastRun = 0;
-        const handler = () => {
+        const checkInactivity = () => {
+            const lastActivity = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
             const now = Date.now();
-            if (now - lastRun > 1000) { // Only reset once per second max
-                resetTimer();
-                lastRun = now;
+
+            if (now - lastActivity > TIMEOUT_MS) {
+                console.log("Session expired due to inactivity.");
+                signOut();
+                localStorage.removeItem(STORAGE_KEY);
+                window.location.href = '/login';
             }
         };
 
-        events.forEach(event => document.addEventListener(event, handler));
+        // Periodic check
+        const intervalId = setInterval(checkInactivity, CHECK_INTERVAL_MS);
+
+        // Immediate check on visibility change (welcome back)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                checkInactivity();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        // Update timestamp on user activity
+        const updateActivity = () => {
+            // Throttle: only update if > 5 seconds have passed to avoid spamming localStorage
+            const last = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+            const now = Date.now();
+            if (now - last > 5000) {
+                localStorage.setItem(STORAGE_KEY, now.toString());
+            }
+        };
+
+        const events = ['mousedown', 'keydown', 'touchstart', 'scroll'];
+        events.forEach(event => window.addEventListener(event, updateActivity));
 
         return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-            events.forEach(event => document.removeEventListener(event, handler));
+            clearInterval(intervalId);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            events.forEach(event => window.removeEventListener(event, updateActivity));
         };
     }, [session, signOut]);
 
-    // 2. Focus / Visibility Refresh Logic (Fix for "Frozen" state)
+    // 2. Focus Refresh Logic (Supabase Session Recovery)
     useEffect(() => {
         if (!session) return;
 
-        const handleVisibilityChange = async () => {
+        const handleFocus = async () => {
             if (document.visibilityState === 'visible') {
-                console.log("App active, checking session...");
-                // Force a session check. If token is expired, Supabase will try to refresh.
-                // If refresh fails, onAuthStateChange in store will likely catch it.
+                // Ensure Supabase session is still valid
                 const { data, error } = await supabase.auth.getSession();
-                console.log("Session Check Result:", data?.session ? "Valid" : "Invalid", error || "");
-
                 if (error || !data.session) {
-                    // If we can't recover session, log out
-                    // signOut(); // Optional: depend on how aggressive we want to be. 
-                    // Usually let `onAuthStateChange` handle the actual sign out to avoid race conditions.
+                    console.log("Supabase session invalid, attempting refresh or logout...");
                 }
             }
         };
 
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('focus', handleVisibilityChange); // Extra backup
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('focus', handleVisibilityChange);
-        };
+        window.addEventListener('focus', handleFocus);
+        return () => window.removeEventListener('focus', handleFocus);
     }, [session]);
 
-    return null; // Logic only component
+    // 3. Keep-Alive Refresh Interval (User Request)
+    useEffect(() => {
+        if (!session) return;
+
+        const interval = setInterval(async () => {
+            // Refresh session to prevent expiration
+            // Note: supabase.auth.getSession() handles token refresh if needed.
+            // But user requested specific interval refresh.
+            const { data, error } = await supabase.auth.getSession();
+            if (error) {
+                console.error("Session refresh error:", error);
+            } else if (data.session) {
+                // Optional: Log refresh for debug
+                // console.log("Session refreshed/verified");
+            }
+        }, 1000 * 60 * 5); // 5 minutes (User requested 5 mins inactivity refresh)
+
+        return () => clearInterval(interval);
+    }, [session]);
+
+    return null;
 }

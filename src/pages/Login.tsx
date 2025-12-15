@@ -87,7 +87,7 @@ export default function Login() {
                             <Zap className="w-5 h-5 text-[#25D366]" /> Entrega Instantânea
                         </div>
                     </div>
-                    <p className="text-xs text-white/50">© 2024 WhisperSend Inc.</p>
+                    <p className="text-xs text-white/50">© 2025 WhisperSend Inc.</p>
                 </div>
             </div>
 

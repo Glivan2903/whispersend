@@ -25,7 +25,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     loading: true,
     initialize: async () => {
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            // Create a timeout promise to prevent indefinite hanging
+            const timeoutPromise = new Promise<{ data: { session: null } }>((resolve) => {
+                setTimeout(() => resolve({ data: { session: null } }), 5000);
+            });
+
+            // Race Supabase vs Timeout
+            const { data: { session } } = await Promise.race([
+                supabase.auth.getSession(),
+                timeoutPromise
+            ]);
             let isAdmin = false;
             let isBlocked = false;
             let termsAccepted = false;

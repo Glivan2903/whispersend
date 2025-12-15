@@ -370,11 +370,11 @@ export default function Landing() {
                 <div className="container mx-auto px-4">
                     <div className="grid md:grid-cols-4 gap-12 mb-12">
                         <div className="col-span-1 md:col-span-2">
-                            <div className="flex items-center gap-2 mb-6 text-white">
-                                <div className="bg-[#075E54] p-2 rounded-lg">
-                                    <MessageSquare className="h-6 w-6" />
+                            <div className="absolute top-6 left-6 flex items-center gap-3">
+                                <div className="bg-white/10 p-2 rounded-lg backdrop-blur-sm border border-white/20">
+                                    <img src="/logo.png" alt="Logo" className="h-6 w-6 object-contain" />
                                 </div>
-                                <span className="text-2xl font-bold tracking-tight">WhisperSend</span>
+                                <span className="text-xl font-bold text-white tracking-tight">WhisperSend</span>
                             </div>
                             <p className="text-gray-400 max-w-md leading-relaxed mb-6">
                                 A plataforma mais segura e divertida para enviar mensagens anônimas.
