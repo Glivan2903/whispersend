@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, Outlet, useNavigate, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import {
     MessageSquare,
@@ -16,9 +16,15 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 export default function DashboardLayout() {
-    const { user, isAdmin, isBlocked, signOut } = useAuthStore();
+    const { user, session, isAdmin, isBlocked, signOut } = useAuthStore();
     const location = useLocation();
+    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Redirect if not logged in
+    if (!session) {
+        return <Navigate to="/login" replace />;
+    }
 
     // Blocked User Modal - Force overlay
     if (isBlocked) {
@@ -48,9 +54,9 @@ export default function DashboardLayout() {
                         </a>
 
                         <button
-                            onClick={async () => {
-                                await signOut();
-                                window.location.href = '/login';
+                            onClick={() => {
+                                signOut();
+                                navigate('/login');
                             }}
                             className="w-full text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors"
                         >
@@ -74,7 +80,7 @@ export default function DashboardLayout() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50/50 flex overflow-hidden font-sans">
+        <div className="h-screen bg-gray-50/50 flex overflow-hidden font-sans">
             {/* Background Effects (Subtler version of Auth) */}
             <div className="fixed inset-0 z-0 pointer-events-none">
                 <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#128C7E]/10 rounded-full mix-blend-multiply filter blur-3xl opacity-50 animate-blob"></div>
@@ -157,9 +163,9 @@ export default function DashboardLayout() {
                 <div className="p-4 border-t border-gray-50 bg-gray-50/30">
                     <Button
                         variant="ghost"
-                        onClick={async () => {
-                            await signOut();
-                            window.location.href = '/login'; // Force reload/redirect
+                        onClick={() => {
+                            signOut();
+                            navigate('/login');
                         }}
                         className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 gap-3 h-11"
                     >
@@ -168,6 +174,7 @@ export default function DashboardLayout() {
                     </Button>
                 </div>
             </aside>
+
 
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-300">

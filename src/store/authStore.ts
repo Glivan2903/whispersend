@@ -65,7 +65,11 @@ export const useAuthStore = create<AuthState>((set) => ({
         return data;
     },
     signOut: async () => {
-        await supabase.auth.signOut();
-        set({ session: null, user: null });
+        set({ session: null, user: null, isAdmin: false, isBlocked: false });
+        try {
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
     },
 }));

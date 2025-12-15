@@ -56,6 +56,7 @@ interface UserStats {
     created_at: string;
     credits_available: number;
     credits_used: number;
+    messages_sent: number;
 }
 
 export default function Admin() {
@@ -85,6 +86,9 @@ export default function Admin() {
 
     const [actionLoading, setActionLoading] = useState(false);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
+
     useEffect(() => {
         if (isAdmin) {
             fetchUsers();
@@ -105,6 +109,7 @@ export default function Admin() {
         }
     };
 
+    // ... handlers ...
     const handleAddCredits = async () => {
         if (!selectedUser) return;
 
@@ -211,19 +216,19 @@ export default function Admin() {
         u.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Pagination Logic
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedUsers = filteredUsers.slice(startIndex, startIndex + itemsPerPage);
+
+    const goToPage = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
     return (
         <div className="space-y-8">
-            <div className="flex flex-col md:flex-row justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-gray-900">Administração</h1>
-                    <p className="text-gray-500">Gerenciamento de usuários e créditos.</p>
-                </div>
-                <Button onClick={() => setCreateUserModalOpen(true)} className="bg-[#075E54] hover:bg-[#128C7E]">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo Cliente
-                </Button>
-            </div>
-
             {/* Stats Cards */}
             <div className="grid gap-4 md:grid-cols-3">
                 <Card>
@@ -265,7 +270,10 @@ export default function Admin() {
                                 placeholder="Buscar por nome ou email..."
                                 className="pl-10"
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1); // Reset to page 1 on search
+                                }}
                             />
                         </div>
                     </div>
@@ -276,92 +284,147 @@ export default function Admin() {
                             <Loader2 className="h-8 w-8 animate-spin text-[#075E54]" />
                         </div>
                     ) : (
-                        <div className="rounded-md border">
-                            <div className="relative w-full overflow-auto">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Usuário</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead>Créditos</TableHead>
-                                            <TableHead className="text-right">Ações</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {filteredUsers.map((u) => (
-                                            <TableRow key={u.id}>
-                                                <TableCell>
-                                                    <div className="flex flex-col">
-                                                        <span className="font-bold">{u.full_name || 'Sem nome'}</span>
-                                                        <span className="text-xs text-gray-500">{u.email}</span>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {u.is_blocked ? (
-                                                        <span className="inline-flex items-center rounded-full border border-red-200 px-2.5 py-0.5 text-xs font-semibold text-red-500 bg-red-50">
-                                                            Bloqueado
-                                                        </span>
-                                                    ) : u.is_admin ? (
-                                                        <span className="inline-flex items-center rounded-full border border-blue-200 px-2.5 py-0.5 text-xs font-semibold text-blue-500 bg-blue-50">
-                                                            Admin
-                                                        </span>
-                                                    ) : (
-                                                        <span className="inline-flex items-center rounded-full border border-green-200 px-2.5 py-0.5 text-xs font-semibold text-green-500 bg-green-50">
-                                                            Ativo
-                                                        </span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex flex-col">
-                                                        <span className="font-medium">{u.credits_available} disp.</span>
-                                                        <span className="text-xs text-gray-500">{u.credits_used} usados</span>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell className="text-right space-x-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            setSelectedUser(u);
-                                                            setCreditAmount(0);
-                                                            setCreditModalOpen(true);
-                                                        }}
-                                                    >
-                                                        <Coins className="h-4 w-4 mr-1" /> Créditos
-                                                    </Button>
-
-                                                    {u.is_blocked ? (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                                            onClick={() => {
-                                                                setSelectedUser(u);
-                                                                setBlockModalOpen(true);
-                                                            }}
-                                                        >
-                                                            <Unlock className="h-4 w-4" />
-                                                        </Button>
-                                                    ) : (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                                                            onClick={() => {
-                                                                setSelectedUser(u);
-                                                                setBlockModalOpen(true);
-                                                            }}
-                                                            disabled={u.is_admin}
-                                                        >
-                                                            <Ban className="h-4 w-4" />
-                                                        </Button>
-                                                    )}
-                                                </TableCell>
+                        <div className="space-y-4">
+                            <div className="rounded-md border">
+                                <div className="relative w-full overflow-auto">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>Usuário</TableHead>
+                                                <TableHead>Status</TableHead>
+                                                <TableHead>Créditos</TableHead>
+                                                <TableHead className="text-center">Msgs Enviadas</TableHead>
+                                                <TableHead className="text-right">Ações</TableHead>
                                             </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {paginatedUsers.map((u) => (
+                                                <TableRow key={u.id}>
+                                                    <TableCell>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-bold">{u.full_name || 'Sem nome'}</span>
+                                                            <span className="text-xs text-gray-500">{u.email}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {u.is_blocked ? (
+                                                            <span className="inline-flex items-center rounded-full border border-red-200 px-2.5 py-0.5 text-xs font-semibold text-red-500 bg-red-50">
+                                                                Bloqueado
+                                                            </span>
+                                                        ) : u.is_admin ? (
+                                                            <span className="inline-flex items-center rounded-full border border-blue-200 px-2.5 py-0.5 text-xs font-semibold text-blue-500 bg-blue-50">
+                                                                Admin
+                                                            </span>
+                                                        ) : (
+                                                            <span className="inline-flex items-center rounded-full border border-green-200 px-2.5 py-0.5 text-xs font-semibold text-green-500 bg-green-50">
+                                                                Ativo
+                                                            </span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{u.credits_available} disp.</span>
+                                                            <span className="text-xs text-gray-500">{u.credits_used} usados</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-center font-medium">
+                                                        {u.messages_sent || 0}
+                                                    </TableCell>
+                                                    <TableCell className="text-right space-x-2">
+                                                        {/* Actions buttons */}
+                                                        <Button
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                setSelectedUser(u);
+                                                                setCreditAmount(0);
+                                                                setCreditModalOpen(true);
+                                                            }}
+                                                        >
+                                                            <Coins className="h-4 w-4 mr-1" /> Créditos
+                                                        </Button>
+
+                                                        {u.is_blocked ? (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                                onClick={() => {
+                                                                    setSelectedUser(u);
+                                                                    setBlockModalOpen(true);
+                                                                }}
+                                                            >
+                                                                <Unlock className="h-4 w-4" />
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                                                                onClick={() => {
+                                                                    setSelectedUser(u);
+                                                                    setBlockModalOpen(true);
+                                                                }}
+                                                                disabled={u.is_admin}
+                                                            >
+                                                                <Ban className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                            {paginatedUsers.length === 0 && (
+                                                <TableRow>
+                                                    <TableCell colSpan={5} className="h-24 text-center text-gray-500">
+                                                        Nenhum usuário encontrado.
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </div>
                             </div>
+
+                            {/* Pagination Controls */}
+                            {totalPages > 1 && (
+                                <div className="flex items-center justify-between border-t border-gray-100 pt-4">
+                                    <div className="text-sm text-gray-500">
+                                        Mostrando {startIndex + 1} até {Math.min(startIndex + itemsPerPage, filteredUsers.length)} de {filteredUsers.length} usuários
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => goToPage(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                        >
+                                            Anterior
+                                        </Button>
+                                        <div className="flex items-center gap-1">
+                                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                                <button
+                                                    key={page}
+                                                    onClick={() => goToPage(page)}
+                                                    className={`w-8 h-8 flex items-center justify-center rounded-md text-sm font-medium transition-colors ${currentPage === page
+                                                        ? 'bg-[#075E54] text-white'
+                                                        : 'text-gray-600 hover:bg-gray-100'
+                                                        }`}
+                                                >
+                                                    {page}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => goToPage(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                        >
+                                            Próxima
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </CardContent>
